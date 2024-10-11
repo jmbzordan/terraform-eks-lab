@@ -43,7 +43,6 @@ resource "aws_nat_gateway" "ngateway" {
     tags          = { Name = "k8s-nat-gateway-${count.index}" }
 }
 
-
 #Criação de routetable de forma dinamica. Funciona, mas acredito ser melhor declarar independentemente com nomes public e private
 # devido a possivel necessidade de outros resources iterar apenas com as publicas ou apenas com as privadas e não com toda a lista
 /*

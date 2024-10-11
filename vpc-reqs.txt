@@ -1,0 +1,30 @@
+
+O Amazon EKS é capaz de criar suas interfaces de rede em qualquer sub-rede especificada ao criar um cluster. É possível alterar em quais sub-redes o Amazon EKS cria suas interfaces de rede depois que o cluster é criado. Quando você atualiza a versão do Kubernetes de um cluster, o Amazon EKS exclui as interfaces de rede originais ele criou e cria novas interfaces de rede. Essas interfaces podem ser criadas nas mesmas sub-redes que a das interfaces de rede originais ou em sub-redes diferentes das originais. Para controlar quais interfaces de rede de sub-redes são criadas, você poderá limitar o número de sub-redes especificadas a apenas duas ao criar um cluster ou atualizar as sub-redes depois de criar o cluster.
+
+####################################
+Requisitos de subnets para clusters
+
+- As sub-redes que você especifica ao criar ou atualizar um cluster devem atender aos requisitos a seguir:
+- As sub-redes devem ter no mínimo seis endereços IP para uso pelo Amazon EKS. Porém, recomendamos no mínimo 16 endereços IP.
+- As sub-redes não podem residir no AWS Outposts, no AWS Wavelength ou em uma zona local da AWS. Porém, se você as tiver na VPC, poderá implantar nós autogerenciados e recursos do Kubernetes nesses tipos de sub-redes.
+- As sub-redes podem ser do tipo público ou privado. Convém, se possível, especificar sub-redes privadas. Uma sub-rede pública tem uma tabela de rotas que inclui uma rota para um gateway da Internet, enquanto uma sub-rede privada tem uma tabela de rotas que não inclui uma rota para um gateway da Internet.
+- As sub-redes não podem residir nas seguintes zonas de disponibilidade:
+    Região da AWS	Nome da região	                    IDs de zona de disponibilidade não permitidas
+    us-east-1	    Leste dos EUA (N. da Virgínia)	    use1-az3
+    us-west-1	    Oeste dos EUA (N. da Califórnia)	usw1-az2
+    ca-central-1	Canadá (Central)	                cac1-az3
+
+
+####################################
+Requisitos de subnets para os nodes:
+
+É possível implantar nós e recursos do Kubernetes nas mesmas sub-redes que você especifica ao criar o cluster. Porém, isso não é necessário. Isso porque também é possível implantar nós e recursos do Kubernetes em sub-redes que você não especificou quando criou o cluster. Se você implantar nós em sub-redes diferentes, o Amazon EKS não criará interfaces de rede de cluster nelas. Qualquer sub-rede na qual você implante nós e recursos do Kubernetes deve atender aos seguintes requisitos:
+- As sub-redes devem ter endereços IP disponíveis suficientes para implantar todos os nós e recursos do Kubernetes.
+- Se precisar de acesso de entrada pela Internet aos Pods, certifique-se de ter pelo menos uma sub-rede pública com endereços IP disponíveis suficientes para implantar balanceadores de carga e ingressos. Você pode implantar balanceadores de carga em sub-redes públicas. Balanceadores de carga podem balancear carga para Pods em sub-redes privadas ou públicas. Convém implantar nós em sub-redes privadas, se possível.
+- Se você planeja implantar nós em uma sub-rede pública, esta deve atribuir automaticamente endereços públicos IPv4
+- Se a sub-rede na qual você implanta um nó for privada e sua tabela de rotas não incluir uma rota para um dispositivo de conversão de endereços de rede (NAT) (IPv4) ou um gateway somente de saída (IPv6), adicione endpoints de VPC usando o AWS PrivateLink à sua VPC. Endpoints de VPC são necessários para todos os Serviços da AWS com os quais seus nós e Pods precisam se comunicar. Exemplos incluem Amazon ECR, Elastic Load Balancing, Amazon CloudWatch, AWS Security Token Service e Amazon Simple Storage Service (Amazon S3). O endpoint deve incluir a sub-rede na qual os nós se encontram. Nem todos os Serviços da AWS oferecem suporte a endpoints de VPC
+- Se quiser implantar balanceadores de carga em uma sub-rede, esta deve ter a seguinte tag:
+    * Private subnets
+        kubernetes.io/role/internal-elb = 1
+    * Public subnets
+        kubernetes.io/role/elb = 1
