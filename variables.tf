@@ -9,7 +9,7 @@
 
 variable "project_name" {
   description = "Nome do projeto utilizado para nomear as tags Name dos resources"
-  type = string
+  type        = string
 }
 
 variable "subnet_per_az" {
@@ -18,21 +18,21 @@ variable "subnet_per_az" {
 }
 
 variable "availability_zones" {
-  type        = list(string)
   description = "Lista de availability zones"
+  type        = list(string)
 }
 
 variable "cidr_block" {
   description = "CDIR block de rede informada para criação da VPC" 
-  type = string
+  type        = string
 }
 
 variable "ami_id" {
   description = "Image id das instancias que serão criadas no ASG"
-  type = string  
+  type        = string  
 }
 
 variable "ec2_types" {
   description = "Tipos das instancia ec2 que serao criadas no ASG"
-  type = list(map(string))
+  type        = list(map(string))
 }
