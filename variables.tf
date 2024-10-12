@@ -7,6 +7,11 @@
   default = {}
 }*/
 
+variable "project_name" {
+  description = "Nome do projeto utilizado para nomear as tags Name dos resources"
+  type = string
+}
+
 variable "subnet_per_az" {
   description = "Define o número de subnets por availability zone"
   type        = map(number)
@@ -17,10 +22,9 @@ variable "availability_zones" {
   description = "Lista de availability zones"
 }
 
-variable "question" {
-  description = "Variavel booleana para tomar decisoes"
-  type = list(number)
-  default = [ ]
+variable "cidr_block" {
+  description = "CDIR block de rede informada para criação da VPC" 
+  type = string
 }
 
 variable "ami_id" {
