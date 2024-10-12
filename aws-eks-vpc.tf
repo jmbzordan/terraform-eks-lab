@@ -117,7 +117,7 @@ resource "aws_route_table_association" "public_rta" {
 
 
 # Cria dinamicamente as rtas privadas conforme mapa de subnets quem não possuem o parametro map_public_on_launch ativado
- # # Possibilidade de iterar diretamente sem o locals, porém menos elegante.
+ # # Possibilidade de iterar diretamente sem o locals, porém menos elegante
  # for_each = { for key,value in aws_subnet.subnet_list : key => value if !value.map_public_ip_on_launch }
 resource "aws_route_table_association" "private_rta" {
   for_each         = aws_subnet.private_subnets
