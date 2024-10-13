@@ -1,0 +1,31 @@
+
+# Cria dinamicamente um mapa de subnets por availability zone conforme especificado pelo usuario nas variaveis
+# Divide igualmente a quantidade de subnets entre publica e privada ---> Possível problema de a quantidade não for multipla de 2 e também não multipla 
+# do número de availability Zones. Porém foi descartado pela dificuldade de toda vez iterar sobre um grande mapa e testando se publica ou privada.
+# FICA O APRENDIZADO
+/*
+resource "aws_subnet" "subnet_list" {
+  for_each = local.subnets
+    vpc_id                  = aws_vpc.vpc.id
+    cidr_block              = cidrsubnet(var.cidr_block, 8, each.value.subnet_num + index(var.availability_zones, each.value.az) * 2) 
+    availability_zone       = each.value.az
+    map_public_ip_on_launch = ((((each.value.subnet_num + 1) % 2) == 0) ? false : true)             # Se true a subnet é publica, ou seja, quando um recurso cair nessa subnet, automaticamente ele ganha um IP público. Senão é privado
+    tags                    = { Name = "eks-subnet-${each.value.az}-${each.value.subnet_num}" }
+}
+*/
+
+
+#Criação de routetable de forma dinamica. Funciona, mas acredito ser melhor declarar independentemente com nomes public e private
+# devido a possivel necessidade de outros resources iterar apenas com as publicas ou apenas com as privadas e não com toda a lista
+
+resource "aws_route_table" "routetable" {
+  count = 2
+  vpc_id = aws_vpc.vpc.id
+  dynamic "route" {
+    for_each = (count.index == 0 ? [1] : [])
+    content {  
+      cidr_block = "0.0.0.0/0"
+      gateway_id = aws_internet_gateway.gateway.id
+    }
+  }
+}
