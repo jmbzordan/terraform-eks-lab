@@ -15,9 +15,9 @@ resource "aws_subnet" "public_subnets" {
      availability_zone       = each.value.az
      map_public_ip_on_launch = true
      tags                    = { 
-                                Name = "${var.project_name}-subnet-${each.value.az}-pub-${each.value.subnet_num + 1}",
-                                "kubernetes.io/role/elb" = 1 
-                              }
+                                 Name = "${var.project_name}-subnet-${each.value.az}-pub-${each.value.subnet_num + 1}",
+                                 "kubernetes.io/role/elb" = 1 
+                               }
 }
 
 
@@ -28,9 +28,9 @@ resource "aws_subnet" "private_subnets" {
      availability_zone       = each.value.az
      map_public_ip_on_launch = false
      tags                    = { 
-                                Name = "${var.project_name}-subnet-${each.value.az}-priv-${each.value.subnet_num + 1}",
-                                "kubernetes.io/role/internal-elb" = 1 
-                              }
+                                 Name = "${var.project_name}-subnet-${each.value.az}-priv-${each.value.subnet_num + 1}",
+                                 "kubernetes.io/role/internal-elb" = 1 
+                               }
 }
 
 
@@ -56,7 +56,8 @@ resource "aws_nat_gateway" "ngateway" {
   for_each         = { for idx,az in var.availability_zones : idx => az }
      allocation_id = aws_eip.elastic_ips[each.key].allocation_id
      subnet_id     = values(aws_subnet.public_subnets)[each.key].id 
-     tags          = { Name = "${var.project_name}-nat-gateway-${each.value}",
+     tags          = { 
+                       Name = "${var.project_name}-nat-gateway-${each.value}",
                        "AZ" = "${each.value}" 
                      }
 }
@@ -81,7 +82,8 @@ resource "aws_route_table" "private_route_table" {
        cidr_block     = "0.0.0.0/0"
        nat_gateway_id = "${aws_nat_gateway.ngateway[each.key].id}"
      }
-     tags             = { Name = "${var.project_name}-private-routetable-${each.value.tags["AZ"]}" 
+     tags             = { 
+                          Name = "${var.project_name}-private-routetable-${each.value.tags["AZ"]}" 
                           "AZ" = "${each.value.tags["AZ"]}" 
                         }
 }
