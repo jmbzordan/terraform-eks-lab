@@ -1,14 +1,19 @@
 # Monta um map com n keys para cada availability zone, conforme quantidade informada na variável subnet_per_az
 locals {                                                        
-  subnets = {
-    for idx, subnet in flatten([for az, count in var.subnet_per_az : [for i in range(count) : { az = az, subnet_num  = i }]]) : "${subnet.az}-${subnet.subnet_num}" => subnet}
+  subnets = { for idx, subnet in flatten(
+              [ for az, count in var.subnet_per_az : 
+                [ for i in range(count) : { az = az, subnet_num  = i }]
+              ]
+            ) : "${subnet.az}-${subnet.subnet_num}" => subnet 
+    }
 
     #for_each         = aws_subnet.private_subnets
       #route_table_id = aws_route_table.private_routez_table.id
       #subnet_id      = "${each.value.id}"
 
-  rt_subnet_az = { for idx,subnet in aws_subnet.private_subnets : subnet.id => [for key,rt in aws_route_table.private_route_table : rt.id if rt.tags["AZ"] == subnet.availability_zone][0] }
-  
+  rt_subnet_az = { for idx,subnet in aws_subnet.private_subnets : subnet.id => 
+                   [ for key,rt in aws_route_table.private_route_table : rt.id if rt.tags["AZ"] == subnet.availability_zone][0] 
+                 }
 }
 /*
 Passos do local.subnets:

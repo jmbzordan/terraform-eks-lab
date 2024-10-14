@@ -9,7 +9,7 @@ resource "aws_vpc" "vpc" {
 
 
 resource "aws_subnet" "public_subnets" {
-  for_each                  = { for key,value in local.subnets : key => value if value.subnet_num == 0 }
+  for_each                   = { for key,value in local.subnets : key => value if value.subnet_num == 0 }
      vpc_id                  = aws_vpc.vpc.id
      cidr_block              = cidrsubnet( var.cidr_block, 8, (each.value.subnet_num * 2) + index(var.availability_zones, each.value.az) ) 
      availability_zone       = each.value.az
@@ -22,7 +22,7 @@ resource "aws_subnet" "public_subnets" {
 
 
 resource "aws_subnet" "private_subnets" {
-  for_each                  = { for key,value in local.subnets : key => value if value.subnet_num != 0 }
+  for_each                   = { for key,value in local.subnets : key => value if value.subnet_num != 0 }
      vpc_id                  = aws_vpc.vpc.id
      cidr_block              = cidrsubnet( var.cidr_block, 8, (each.value.subnet_num * 2) + index(var.availability_zones, each.value.az) ) 
      availability_zone       = each.value.az
@@ -44,7 +44,7 @@ resource "aws_internet_gateway" "igateway" {
 
 # Toda nat_gateway necessita se atrelada a um elastic IP. Logo, cria-se tantos quantos for o número de nat_gateways (CARAI TA CERTA ESSA FRASE?)
 resource "aws_eip" "elastic_ips" {
-  for_each = { for idx,az in var.availability_zones : idx => az }
+  for_each  = { for idx,az in var.availability_zones : idx => az }
      domain = "vpc"
      tags   = { Name = "${var.project_name}-elastic-ip-${each.value}" }
 }
@@ -53,11 +53,12 @@ resource "aws_eip" "elastic_ips" {
 # Nat gateway são utilizadas pelas subnets privadas para chegar ao internet gateway e ter acesso externo. É criada uma para cada availability zone
 # sendo utilizada como rota para todas as subnets daquela availability zone. OBS: São criadas nas subnets publicas!!
 resource "aws_nat_gateway" "ngateway" {
-  for_each        = { for idx,az in var.availability_zones : idx => az }
+  for_each         = { for idx,az in var.availability_zones : idx => az }
      allocation_id = aws_eip.elastic_ips[each.key].allocation_id
      subnet_id     = values(aws_subnet.public_subnets)[each.key].id 
      tags          = { Name = "${var.project_name}-nat-gateway-${each.value}",
-                       "AZ" = "${each.value}" }
+                       "AZ" = "${each.value}" 
+                     }
 }
 
 
@@ -81,7 +82,8 @@ resource "aws_route_table" "private_route_table" {
        nat_gateway_id = "${aws_nat_gateway.ngateway[each.key].id}"
      }
      tags             = { Name = "${var.project_name}-private-routetable-${each.value.tags["AZ"]}" 
-                          "AZ" = "${each.value.tags["AZ"]}" }
+                          "AZ" = "${each.value.tags["AZ"]}" 
+                        }
 }
 
 
@@ -94,11 +96,9 @@ resource "aws_route_table_association" "public_rta" {
      subnet_id      = "${each.value.id}"
 }
 
-
 # Cria dinamicamente as rtas privadas conforme mapa de subnets quem não possuem o parametro map_public_on_launch ativado
  # # Possibilidade de iterar diretamente sem o locals, porém menos elegante
 
- # for_each = { for key,value in aws_subnet.subnet_list : key => value if !value.map_public_ip_on_launch }
 resource "aws_route_table_association" "private_rta" {
   for_each         = local.rt_subnet_az
     route_table_id = each.value
