@@ -2,9 +2,15 @@
   value = aws_subnet.private_subnets[*].id
 }
 */
+/*
+output "public_subnet" {
+  value = { for idx,value in local.rt_subnet_az : value.rt => value.subnet  }
+}*/
+/*
 output "nat_az" {
   value = local.subnet_rt_map
 }
+*/
 /*
 output "rt_subnet_association" {
   value = local.rt_subnet_az

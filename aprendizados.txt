@@ -17,7 +17,6 @@ resource "aws_subnet" "subnet_list" {
 
 #Criação de routetable de forma dinamica. Funciona, mas acredito ser melhor declarar independentemente com nomes public e private
 # devido a possivel necessidade de outros resources iterar apenas com as publicas ou apenas com as privadas e não com toda a lista
-
 resource "aws_route_table" "routetable" {
   count = 2
   vpc_id = aws_vpc.vpc.id
@@ -29,3 +28,43 @@ resource "aws_route_table" "routetable" {
     }
   }
 }
+
+
+# Todos locals que funcionam porém não foram efetivos na solução do problema que tive e então foi descartados. Serve como exemplo de possibilidades
+locals{
+  len_private_subnets = length(aws_subnet.private_subnets)
+  
+  priv_subnet_az = { for key,value in aws_subnet.private_subnets : value.id => value.availability_zone }
+  
+  pub_subnet_az = { for key,value in values(aws_subnet.public_subnets) : value.id => value.availability_zone }
+  
+  pub_subnet_az = { for key,value in values(aws_subnet.public_subnets) : key => {subnet_id=value.id, az=value.availability_zone }}
+  
+  ngateway_az = { for key,value in aws_nat_gateway.ngateway : value.id => local.pub_subnet_az[value.subnet_id] }
+  
+  rt_private_az = { for value in aws_route_table.private_route_table : value.id => lookup(local.ngateway_az, tolist(value.route)[0].nat_gateway_id, "")}
+  
+  subnet_rt_map = {for idx,subnet in aws_subnet.private_subnets : idx => { for rt,az in local.rt_private_az : subnet.id => rt if az == subnet.availability_zone }}
+  
+  subnet_rt_map = {for key,value in flatten([ for idx,subnet in aws_subnet.private_subnets : [ for rt,az in local.rt_private_az : {subnet = subnet.id, rt = rt} if az == subnet.availability_zone] ]) : key => value}
+}
+
+
+
+
+  /* # LOCALS NÃO MAIS UTILIZADOS
+  # Porém ficam salvos para aprendizado
+  
+  # Monta um map de subnets privadas, baseado no argumento booleano map_public_ip_on_launch que é definida como true se a subnet for publica
+  ##### Como o map de subnets foi dividido, esse local não será mais utilizado #####
+  public_subnets = {
+    for name,subnet in aws_subnet.subnet_list : 
+      "${name}" => subnet if subnet.map_public_ip_on_launch
+  }
+  
+  # Monta um map de subnets privadas, baseado no argumento booleano map_public_ip_on_launch que é definida como true se a subnet for publica
+  ##### Como o map de subnets foi dividido, esse local não será mais utilizado #####
+  private_subnets = {
+    for name,subnet in aws_subnet.subnet_list : 
+      "${name}" => subnet if !subnet.map_public_ip_on_launch        # ! testa se variavel é false
+  }*/

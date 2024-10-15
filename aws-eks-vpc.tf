@@ -102,10 +102,9 @@ resource "aws_route_table_association" "public_rta" {
  # # Possibilidade de iterar diretamente sem o locals, porém menos elegante
 
 resource "aws_route_table_association" "private_rta" {
-  depends_on = [ aws_route_table.private_route_table ]
-  for_each         = { for rt,subnet in values(local.subnet_rt_map) : rt.rt => subnet.subnet  }
-    subnet_id      = "${each.value}"
-    route_table_id = "${each.key}"
+  for_each         = local.rt_subnet_az
+    subnet_id      = each.value.subnet
+    route_table_id = each.value.rt
 }
 
 /*
