@@ -80,7 +80,7 @@ resource "aws_route_table" "private_route_table" {
      vpc_id           = aws_vpc.vpc.id
      route {
        cidr_block     = "0.0.0.0/0"
-       nat_gateway_id = "${aws_nat_gateway.ngateway[each.key].id}"
+       nat_gateway_id = each.value.id
      }
      tags             = { 
                           Name = "${var.project_name}-private-routetable-${each.value.tags["AZ"]}" 
@@ -102,9 +102,10 @@ resource "aws_route_table_association" "public_rta" {
  # # Possibilidade de iterar diretamente sem o locals, porém menos elegante
 
 resource "aws_route_table_association" "private_rta" {
-  for_each         = local.rt_subnet_az
-    route_table_id = each.value
-    subnet_id      = each.key
+  depends_on = [ aws_route_table.private_route_table ]
+  for_each         = { for rt,subnet in values(local.subnet_rt_map) : rt.rt => subnet.subnet  }
+    subnet_id      = "${each.value}"
+    route_table_id = "${each.key}"
 }
 
 /*

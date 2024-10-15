@@ -3,17 +3,28 @@ locals {
   subnets = { for idx, subnet in flatten(
               [ for az, count in var.subnet_per_az : 
                 [ for i in range(count) : { az = az, subnet_num  = i }]
-              ]
-            ) : "${subnet.az}-${subnet.subnet_num}" => subnet 
-    }
+              ]) : "${subnet.az}-${subnet.subnet_num}" => subnet }
 
     #for_each         = aws_subnet.private_subnets
       #route_table_id = aws_route_table.private_routez_table.id
       #subnet_id      = "${each.value.id}"
 
-  rt_subnet_az = { for idx,subnet in aws_subnet.private_subnets : subnet.id => 
-                   [ for key,rt in aws_route_table.private_route_table : rt.id if rt.tags["AZ"] == subnet.availability_zone][0] 
-                 }
+  #rt_subnet_az = { for idx,subnet in aws_subnet.private_subnets : subnet.id => 
+  #                 [ for key,rt in aws_route_table.private_route_table : rt.id if rt.tags["AZ"] == subnet.availability_zone][0] }
+  
+  #len_private_subnets = length(aws_subnet.private_subnets)
+
+  #priv_subnet_az = { for key,value in aws_subnet.private_subnets : value.id => value.availability_zone }
+
+  pub_subnet_az = { for key,value in aws_subnet.public_subnets : value.id => value.availability_zone }
+
+  ngateway_az = { for key,value in aws_nat_gateway.ngateway : value.id => local.pub_subnet_az[value.subnet_id] }
+
+  rt_private_az = { for value in aws_route_table.private_route_table : value.id => lookup(local.ngateway_az, tolist(value.route)[0].nat_gateway_id, "")}
+
+  #subnet_rt_map = {for idx,subnet in aws_subnet.private_subnets : idx => { for rt,az in local.rt_private_az : subnet.id => rt if az == subnet.availability_zone }}
+
+  subnet_rt_map = {for key,value in flatten([ for idx,subnet in aws_subnet.private_subnets : [ for rt,az in local.rt_private_az : {subnet = subnet.id, rt = rt} if az == subnet.availability_zone] ]) : key => value}
 }
 /*
 Passos do local.subnets:
