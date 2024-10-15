@@ -7,7 +7,7 @@ resource "aws_vpc" "vpc" {
   tags                 = { Name = "${var.project_name}-vpc" }
 }
 
-
+# Criação dinamica das subnets publicas: uma para cada availability Zone. É montado um map em local que retornará 0 para o az onde a subnet publica deve ser criada
 resource "aws_subnet" "public_subnets" {
   for_each                   = { for key,value in local.subnets : key => value if value.subnet_num == 0 }
      vpc_id                  = aws_vpc.vpc.id
@@ -20,7 +20,7 @@ resource "aws_subnet" "public_subnets" {
                                }
 }
 
-
+# Criação dinamica das subnets privadas: .são distribuidas entra as availability Zones, porém cada uma deve ter uma subnet privada. É montado um map em local que retornará de 1 a n para o az onde a subnet publica deve ser criada
 resource "aws_subnet" "private_subnets" {
   for_each                   = { for key,value in local.subnets : key => value if value.subnet_num != 0 }
      vpc_id                  = aws_vpc.vpc.id
