@@ -87,8 +87,13 @@ Uma política do IAM personalizada. As permissões mínimas a seguir permitem qu
 }
 
 
-Uma aws_iam_role_policy com a policy AmazonEKSClusterPolicy atrelada
-Nesse caso, essa policy já existe, basta pesquisar na console em IAM-> policies. Logo basta associarmos a policy a nossa role
+Uma aws_iam_role_policy com a policy AmazonEKSClusterPolicy atrelada. Nesse caso, essa policy já existe, basta pesquisar na console em IAM-> policies. Logo basta associarmos a policy a nossa role
+Sendo assim, devemos criar um aws_role_policy_attachment que atrele a role com a policy. Para isso, é necessário o ARN da policy: arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
 
-Sendo assim, devemos criar um aws_role_policy_attachment que atrele a role com a policy
-Para isso, é necessário o ARN da policy: arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+
+OIDC provider
+
+Recurso necessário para habilitar função IAM role para service account, ou seja, aplicar uma role para uma service account de uma aplicação. Esse recurso é utilizado pelo AWS Load Balance Controller, logo deve ser habilitado
+Para criarmos esse recurso, é necessário definir um resource aws_iam_openid_connect_provider no terraform. Esse resource requer um argumento chamado "thumbprint_list" que é uma lista de thumbprints de certificados de servidores para o certificado de servidores do OpenID Connect identity provider.
+A documentação nos ensina como extrair essa thumbprint_list:
+https://docs.aws.amazon.com/pt_br/IAM/latest/UserGuide/id_roles_providers_create_oidc_verify-thumbprint.html

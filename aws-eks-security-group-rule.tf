@@ -1,3 +1,5 @@
+# Não é necessário criar security group pois o EKS já cria automaticamente um security group. É necessário injetar uma regra para que ele aceite conexão externa na 443 somente
+# Para isso será necessário criar um resource aws_security_group_rule
 resource "aws_security_group_rule" "security_group_rule" {
    depends_on        = [ aws_eks_cluster.cluster_eks ]
    type              = "ingress"

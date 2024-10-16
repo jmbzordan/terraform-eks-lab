@@ -24,10 +24,10 @@ output:
 */
 
 
-# local que monta um map com a route table e a subnet ID privada na mesma AZ da subnet associada ao nat gateway da route table e que devem ser utilizadas na route table association
-#  rt_subnet_az = { for idx,subnet in aws_subnet.private_subnets : idx => 
-#                    [ for key,rt in aws_route_table.private_route_table : 
-#                       { rt=rt.id, subnet=subnet.id } if rt.tags["AZ"] == subnet.availability_zone][0] }
+ #Local que monta um map com a route table e a subnet ID privada na mesma AZ da subnet associada ao nat gateway da route table e que devem ser utilizadas na route table association
+  rt_subnet_az = { for idx,subnet in aws_subnet.private_subnets : idx => 
+                    [ for key,rt in aws_route_table.private_route_table : 
+                       { rt=rt.id, subnet=subnet.id } if rt.tags["AZ"] == subnet.availability_zone][0] }
 
 #Exemplo de output do local:
 /*

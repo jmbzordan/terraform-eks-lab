@@ -43,7 +43,7 @@ resource "aws_internet_gateway" "igateway" {
    tags   = { Name = "${var.project_name}-internet-gateway" }
 }
 
-/*
+
 # Toda nat_gateway necessita se atrelada a um elastic IP. Logo, cria-se tantos quantos for o número de nat_gateways (CARAI TA CERTA ESSA FRASE?)
 resource "aws_eip" "elastic_ips" {
    for_each  = { for idx,az in var.availability_zones : idx => az }
@@ -108,13 +108,3 @@ resource "aws_route_table_association" "private_rta" {
       subnet_id      = each.value.subnet
       route_table_id = each.value.rt
 }
-*/
-/*
-# Não é necessário criar security group pois o EKS já cria automaticamente um security group. É necessário injetar uma regra para que ele aceite conexão externa na 443 somente
-# Para isso será necessário criar um resource aws_security_group_rule na parte do código do cluster EKS
-resource "aws_security_group" "security_group" {
-   vpc_id = aws_vpc.vpc.id
-   name   = "eks-securitygroup"
-   tags   = { Name = "${var.project_name}-security-group" }
-}
-*/
