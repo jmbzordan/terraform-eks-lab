@@ -8,31 +8,31 @@
 }*/
 
 variable "project_name" {
-  description = "Nome do projeto utilizado para nomear as tags Name dos resources"
-  type        = string
+   description = "Nome do projeto utilizado para nomear as tags Name dos resources"
+   type        = string
 }
 
 variable "subnet_per_az" {
-  description = "Define o número de subnets por availability zone"
-  type        = map(number)
+   description = "Define o número de subnets por availability zone"
+   type        = map(number)
 }
 
 variable "availability_zones" {
-  description = "Lista de availability zones"
-  type        = list(string)
+   description = "Lista de availability zones"
+   type        = list(string)
 }
 
 variable "cidr_block" {
-  description = "CDIR block de rede informada para criação da VPC" 
-  type        = string
+   description = "CDIR block de rede informada para criação da VPC" 
+   type        = string
 }
 
 variable "ami_id" {
-  description = "Image id das instancias que serão criadas no ASG"
-  type        = string  
+   description = "Image id das instancias que serão criadas no ASG"
+   type        = string  
 }
 
 variable "ec2_types" {
-  description = "Tipos das instancia ec2 que serao criadas no ASG"
-  type        = list(map(string))
+   description = "Tipos das instancia ec2 que serao criadas no ASG"
+   type        = list(map(string))
 }

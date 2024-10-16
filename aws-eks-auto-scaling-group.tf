@@ -4,58 +4,58 @@
 # Template para criação do ASG
 /*
 resource "aws_launch_template" "asg_template" {
-  depends_on = [ 
-    aws_vpc.vpc,
-    aws_subnet.subnet_list,
-    aws_route_table.private_route_table,
-    aws_route_table.public_route_table,
-    aws_internet_gateway.igateway,
-    aws_route_table_association.private_rta,
-    aws_route_table_association.public_rta,
-    aws_security_group.security_group
-  ]
-  name                   = "asg-k8s-cluster"
-  image_id               = var.ami_id
-  #instance_type = var.ec2_type
-  #instance_type = "t2.micro"
-  key_name               = aws_key_pair.key_pair.key_name
-  vpc_security_group_ids = ["${aws_security_group.security_group.id}"]
+   depends_on = [ 
+      aws_vpc.vpc,
+      aws_subnet.subnet_list,
+      aws_route_table.private_route_table,
+      aws_route_table.public_route_table,
+      aws_internet_gateway.igateway,
+      aws_route_table_association.private_rta,
+      aws_route_table_association.public_rta,
+      aws_security_group.security_group 
+   ]
+   name                   = "asg-k8s-cluster"
+   image_id               = var.ami_id
+   #instance_type = var.ec2_type
+   #instance_type = "t2.micro"
+   key_name               = aws_key_pair.key_pair.key_name
+   vpc_security_group_ids = ["${aws_security_group.security_group.id}"]
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group#launch_template
 # Documentacao para resource autoscaling_group
 resource "aws_autoscaling_group" "asg" {
-  depends_on = [ 
-    aws_vpc.vpc,
-    aws_subnet.subnet_list,
-    aws_route_table.private_route_table,
-    aws_route_table.public_route_table,
-    aws_internet_gateway.igateway,
-    aws_route_table_association.private_rta,
-    aws_route_table_association.public_rta,
-    aws_security_group.security_group,
-    aws_launch_template.asg_template
-  ]
-  max_size            = 6
-  min_size            = 3
-  desired_capacity    = 3
-  vpc_zone_identifier = values(local.public_subnets_ids)      #vpc_zone_identifier exige uma lista, logo a função value() retorna uma lista dos values de um map
+   depends_on = [ 
+      aws_vpc.vpc,
+      aws_subnet.subnet_list,
+      aws_route_table.private_route_table,
+      aws_route_table.public_route_table,
+      aws_internet_gateway.igateway,
+      aws_route_table_association.private_rta,
+      aws_route_table_association.public_rta,
+      aws_security_group.security_group,
+      aws_launch_template.asg_template
+   ]
+   max_size            = 6
+   min_size            = 3
+   desired_capacity    = 3
+   vpc_zone_identifier = values(local.public_subnets_ids)      #vpc_zone_identifier exige uma lista, logo a função value() retorna uma lista dos values de um map
 
-    mixed_instances_policy {
+   mixed_instances_policy {
       instances_distribution {
-        on_demand_allocation_strategy = "lowest-price"
-        #spot_allocation_strategy = "price-capacity-optimized"
+         on_demand_allocation_strategy = "lowest-price"
+         #spot_allocation_strategy = "price-capacity-optimized"
       }
 
       # quando utilizamos o mixed_instances_policy, é obrigatório o uso do launch_template junto com o launch_template_specification
       # além disso, quando utilizamos essa estrutura de mixed_instances, é obrigatório o uso do override caso não declaramos o instance_type no resource launch_template
       launch_template {
-        launch_template_specification {
-          launch_template_id = aws_launch_template.asg_template.id
-          version = "$Latest"
-        }
+         launch_template_specification {
+            launch_template_id = aws_launch_template.asg_template.id
+            version = "$Latest"
+         }
       }
-    }
+   }
 }
 */ 
         # ec2_types é uma lista de maps, logo "override.value" é um map, onde o lookup busca o value da chave "instance_type". Caso não exista, retorna null

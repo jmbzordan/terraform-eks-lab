@@ -1,9 +1,9 @@
 # Monta um map com n keys para cada availability zone, conforme quantidade informada na variável subnet_per_az
 locals {                                                        
-  subnets = { for idx, subnet in flatten(
-              [ for az, count in var.subnet_per_az : 
-                [ for i in range(count) : { az = az, subnet_num  = i }]
-              ]) : "${subnet.az}-${subnet.subnet_num}" => subnet }
+   subnets = { for idx, subnet in flatten(
+                [ for az, count in var.subnet_per_az : 
+                   [ for i in range(count) : { az = az, subnet_num  = i }]
+                ]) : "${subnet.az}-${subnet.subnet_num}" => subnet }
 
 /*
 Passos do local.subnets:
@@ -25,9 +25,9 @@ output:
 
 
 # local que monta um map com a route table e a subnet ID privada na mesma AZ da subnet associada ao nat gateway da route table e que devem ser utilizadas na route table association
-  rt_subnet_az = { for idx,subnet in aws_subnet.private_subnets : idx => 
-                   [ for key,rt in aws_route_table.private_route_table : 
-                       { rt=rt.id, subnet=subnet.id } if rt.tags["AZ"] == subnet.availability_zone][0] }
+#  rt_subnet_az = { for idx,subnet in aws_subnet.private_subnets : idx => 
+#                    [ for key,rt in aws_route_table.private_route_table : 
+#                       { rt=rt.id, subnet=subnet.id } if rt.tags["AZ"] == subnet.availability_zone][0] }
 
 #Exemplo de output do local:
 /*
@@ -39,5 +39,7 @@ rt_subnet_az = {
   "4" = { "rt" = "rtb-038d84a2cbd2723a3", "subnet" = "subnet-059fb5d68bf85da23" }
   "5" = { "rt" = "rtb-038d84a2cbd2723a3", "subnet" = "subnet-083592832f563b9ad" }
   */
+  #Transforma o mapa de subnets publica em uma lista de subnet IDs utilizada na declaração do cluster EKS
+  public_subnet_list = [ for key,value in aws_subnet.public_subnets : value.id ]
 
 }

@@ -27,12 +27,12 @@ output "subnet_nats" {
 }
 */
 ##### OUTPUTS PARA DEBUG #####
-/*
-# Imprime as subnets PUBLICAS criadas
+
+# Imprime as subnets PUBLICAS em forma de lista para ser utilizada na declaração do cluster eks
 output "public_subnets" {
-   value = {for key,value in aws_subnet.public_subnets : key => value}
+   value = [for key,value in aws_subnet.public_subnets : value.id]
 }
-*/
+
 /*
 # Imprime as subnets PRIVADAS criadas
 output "private_subnets" {
