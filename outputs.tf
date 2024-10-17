@@ -1,3 +1,6 @@
+##### OUTPUTS PARA DEBUG #####
+#Todos os outputs aqui foram usados para DEBUG em tempo de desenvolvimento.
+
 /*output "private_subnets" {
   value = aws_subnet.private_subnets[*].id
 }
@@ -26,7 +29,6 @@ output "subnet_nats" {
   value = local.matching_subnets
 }
 */
-##### OUTPUTS PARA DEBUG #####
 
 # Imprime as subnets PUBLICAS em forma de lista para ser utilizada na declaração do cluster eks
 output "public_subnets" {
