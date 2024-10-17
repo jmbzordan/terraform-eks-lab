@@ -43,4 +43,6 @@ rt_subnet_az = {
   public_subnet_list = [ for key,value in aws_subnet.public_subnets : value.id ]
   
   private_subnet_list = [ for key,value in aws_subnet.private_subnets : value.id ]
+
+  oidc_issuer = aws_eks_cluster.cluster_eks.identity[0].oidc[0].issuer
 }

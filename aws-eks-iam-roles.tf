@@ -13,13 +13,6 @@ resource "aws_iam_role" "iam_cluster_role" {
    tags               = { Name = "${var.project_name}-iam-cluster-role" }
 }
 
-# Recurso que atrela a policy já existe e apontada como necessária na documentação de criação do EKS.
-# https://docs.aws.amazon.com/pt_br/eks/latest/userguide/using-service-linked-roles-eks.html
-# Documentação de policies para cluster EKS
-resource "aws_iam_role_policy_attachment" "cluster_role_attachment" {
-   role       = aws_iam_role.iam_cluster_role.name
-   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"         #hard coded pois é um requisito do EKS e não pode ser mudada.
-}
 
 # Role para o managed group
 resource "aws_iam_role" "iam_mng_role" {
@@ -36,22 +29,27 @@ resource "aws_iam_role" "iam_mng_role" {
    tags               = { Name = "${var.project_name}-iam-managed-node-group-role" }
 }
 
-# Policies que serão atreladas a role do managed node group e apontadas como requisitos pela documentação do EKS
-# https://docs.aws.amazon.com/pt_br/eks/latest/userguide/using-service-linked-roles-eks-nodegroups.html
-# Documentação de policies para nós EKS
-resource "aws_iam_role_policy_attachment" "mng_worker_role_attachment" {
-   role       = aws_iam_role.iam_mng_role.name
-   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"              #hard coded pois é um requisito do EKS e não pode ser mudada.
-}
 
+resource "aws_iam_role" "lb_controller_role" {
+   name = "${var.project_name}-lb-controller-role"
 
-resource "aws_iam_role_policy_attachment" "mng_ecr_role_attachment" {
-   role       = aws_iam_role.iam_mng_role.name
-   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"     #hard coded pois é um requisito do EKS e não pode ser mudada.
-}
-
-
-resource "aws_iam_role_policy_attachment" "mng_cni_role_attachment" {
-   role       = aws_iam_role.iam_mng_role.name
-   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"                   #hard coded pois é um requisito do EKS e não pode ser mudada.
+   assume_role_policy = <<EOF
+   {
+       "Version": "2012-10-17",
+       "Statement": [{
+          "Effect": "Allow",
+          "Principal": {
+             "Federated": "arn:aws:iam::${data.aws_caller_identity.current_caller_identity.account_id}:oidc-provider/oidc.eks.${data.aws_region.current_region.name}.amazonaws.com/id/${local.oidc_issuer}"
+          },
+          "Action": "sts:AssumeRoleWithWebIdentity",
+          "Condition": {
+             "StringEquals": {
+                "oidc.eks.${data.aws_region.current_region.name}.amazonaws.com/id/${local.oidc_issuer}:aud": "sts.amazonaws.com",
+                "oidc.eks.${data.aws_region.current_region.name}.amazonaws.com/id/${local.oidc_issuer}:sub": "system:serviceaccount:kube-system:aws-load-balancer-controller"
+             }
+          }
+       }]
+   }
+   EOF
+   tags = { Name = "${var.project_name}-iam-managed-node-group-role" }
 }
