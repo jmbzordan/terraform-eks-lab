@@ -41,5 +41,6 @@ rt_subnet_az = {
   */
   #Transforma o mapa de subnets publica em uma lista de subnet IDs utilizada na declaração do cluster EKS
   public_subnet_list = [ for key,value in aws_subnet.public_subnets : value.id ]
-
+  
+  private_subnet_list = [ for key,value in aws_subnet.private_subnets : value.id ]
 }

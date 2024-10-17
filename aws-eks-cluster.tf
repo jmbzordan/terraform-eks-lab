@@ -1,6 +1,6 @@
 resource "aws_eks_cluster" "cluster_eks" {
    name                      = "${var.project_name}-cluster"
-   role_arn                  = aws_iam_role.iam_role.arn
+   role_arn                  = aws_iam_role.iam_cluster_role.arn
 
    vpc_config {
       subnet_ids              = local.public_subnet_list    # Subnets publicas onde será criado o cluster EKS. Lembrando que EKS é a parte do control plane, ao qual o usuário se conectar pelo kubectl com a API server.
