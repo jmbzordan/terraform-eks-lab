@@ -29,7 +29,7 @@ Requisitos de subnets para os nodes:
     * Public subnets
         kubernetes.io/role/elb = 1
 
-
+####################################
 Amazon EKS Cluster IAM
 
 Um perfil do IAM de cluster do Amazon EKS é necessário para cada cluster. Os clusters do Kubernetes gerenciados pelo Amazon EKS usam esse perfil para gerenciar nós e o provedor de nuvem herdado usa esse perfil para criar balanceadores de carga com o Elastic Load Balancing para serviços.
@@ -38,7 +38,6 @@ Antes de criar clusters do Amazon EKS, você deve criar uma função do IAM com 
 AmazonEKSClusterPolicy
 
 Uma política do IAM personalizada. As permissões mínimas a seguir permitem que o Kubernetes cluster gerencie nós, mas não permitem que o provedor de nuvem legado crie balanceadores de carga com o Elastic Load Balancing. Sua política do IAM personalizada deve ter pelo menos as seguintes permissões:
-
 
 {
   "Version": "2012-10-17",
@@ -70,7 +69,6 @@ Uma política do IAM personalizada. As permissões mínimas a seguir permitem qu
   ]
 }
 
-
 É necessário criar uma aws_iam_role com o seguinte assumerole:
 
 {
@@ -86,12 +84,11 @@ Uma política do IAM personalizada. As permissões mínimas a seguir permitem qu
   ]
 }
 
-
 Uma aws_iam_role_policy com a policy AmazonEKSClusterPolicy atrelada. Nesse caso, essa policy já existe, basta pesquisar na console em IAM-> policies. Logo basta associarmos a policy a nossa role
 Sendo assim, devemos criar um aws_role_policy_attachment que atrele a role com a policy. Para isso, é necessário o ARN da policy: arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
 
-
-OIDC provider
+####################################
+** OIDC provider
 
 Recurso necessário para habilitar função IAM role para service account, ou seja, aplicar uma role para uma service account de uma aplicação. Esse recurso é utilizado pelo AWS Load Balance Controller, logo deve ser habilitado
 Para criarmos esse recurso, é necessário definir um resource aws_iam_openid_connect_provider no terraform. Esse resource requer um argumento chamado "thumbprint_list" que é uma lista de thumbprints de certificados de servidores para o certificado de servidores do OpenID Connect identity provider.
