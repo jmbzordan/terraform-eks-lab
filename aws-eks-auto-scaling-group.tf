@@ -1,3 +1,6 @@
+# Primeiramente a ideia era implementar um k8s manualmente utilizando o ASG. Porém a partir do momento que é utilizado o EKS, os resources do EKS
+# automaticamente criam os recursos do ASG, logo a ideia foi abandonada. Porém foi implementado o ASG para exercício de estudo e funciona.
+# A partir da linha 63, são documentações úteis para implementação de mixed instances policy
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template#instance-profileTemplate
 # Documentacao para resource launch_template
