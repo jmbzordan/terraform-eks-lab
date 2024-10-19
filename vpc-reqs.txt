@@ -89,8 +89,52 @@ Sendo assim, devemos criar um aws_role_policy_attachment que atrele a role com a
 
 ####################################
 ** OIDC provider
+É utilizado para trazer uma feature ao cluster que é o IAM Role for service account, possibilitando restringir acessos de aplicações (pods) a recursos do kubernetes. Contribuindo para a segurança dentro do cluster.
 
 Recurso necessário para habilitar função IAM role para service account, ou seja, aplicar uma role para uma service account de uma aplicação. Esse recurso é utilizado pelo AWS Load Balance Controller, logo deve ser habilitado
 Para criarmos esse recurso, é necessário definir um resource aws_iam_openid_connect_provider no terraform. Esse resource requer um argumento chamado "thumbprint_list" que é uma lista de thumbprints de certificados de servidores para o certificado de servidores do OpenID Connect identity provider.
 A documentação nos ensina como extrair essa thumbprint_list:
 https://docs.aws.amazon.com/pt_br/IAM/latest/UserGuide/id_roles_providers_create_oidc_verify-thumbprint.html
+
+
+Para os nodes
+https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html - Documentação dos passos para criação da IAM role para os nodes
+
+Assume role policy:
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+Aqui utilizamos o service EC2 e não eks conforme utilizado no cluster
+
+Necessário criar role para node do EKS utilizando o resource aws_role_policy_attachment para atrelar as seguintes policies:
+AmazonEKS_CNI_Policy
+AmazonEC2ContainerRegistryReadOnly
+AmazonEKSWorkerNodePolicy
+
+
+https://docs.aws.amazon.com/eks/latest/userguide/lbc-manifest.html 
+
+Na documentação acima, temos os passos para a criação do load balancer e seus componentes de IAM, roles e policies para correto funcionamento.
+
+###########################
+Criação da Service Account
+
+Após a criação de roles e policies e conexão entre os dois tipos, precisamos criar uma service account para vincular com a Role
+Para isso, é necessário utilizar o provider Kubernetes. Primeiramente se declara o provider, e dentro desse bloco se configura a autenticação do provider com o cluster EKS criado para depois utilizar esse mesmo provider para criar não só a service account como qualquer outro recurso desejado
+https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs - Na documentação temos as opções de recursos disponíveis
+
+Autenticação utilza-se a opção exec Plugins.
+Depois cria-se o resource aws_
+
+Helm
+
+Deploy do Helm, que é um gerenciador de pacotes para o Kubernets. Facilita a instalação atualização e gerenciamento de aplicações dentro do cluster. Utiliza charts que são coleções de arquivos que descrevem os recursos do kubernetes necessários para executar uma aplicação.

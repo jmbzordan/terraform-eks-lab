@@ -14,7 +14,7 @@ resource "aws_iam_role_policy_attachment" "lb_controller_role_attachment" {
 
 
 # Policies que serão atreladas a role do managed node group e apontadas como requisitos pela documentação do EKS
-# https://docs.aws.amazon.com/pt_br/eks/latest/userguide/using-service-linked-roles-eks-nodegroups.html
+# https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html
 # Documentação de policies para nós EKS
 resource "aws_iam_role_policy_attachment" "mng_worker_role_attachment" {
    role       = aws_iam_role.iam_mng_role.name

@@ -67,27 +67,27 @@ resource "aws_nat_gateway" "ngateway" {
 
 # Route Table publica da VPC, associada ao cidr 0.v.0.0/0 que é o da internet
 resource "aws_route_table" "public_route_table" {
-   vpc_id       = aws_vpc.vpc.id
+   vpc_id        = aws_vpc.vpc.id
    route { 
       cidr_block = "0.0.0.0/0"
       gateway_id = aws_internet_gateway.igateway.id
    }
-   tags         = { Name = "${var.project_name}-public-routetable" }
+   tags          = { Name = "${var.project_name}-public-routetable" }
 }
 
 
 # Route Table privada da VPC, ASSOCIA-SE AS NAT_GATEWAYS??? NAO SEI AINDA
 resource "aws_route_table" "private_route_table" {
-   for_each            = aws_nat_gateway.ngateway
-      vpc_id           = aws_vpc.vpc.id
+   for_each             = aws_nat_gateway.ngateway
+      vpc_id            = aws_vpc.vpc.id
       route {
          cidr_block     = "0.0.0.0/0"
          nat_gateway_id = each.value.id
       }
-      tags             = { 
+      tags              = { 
                             Name = "${var.project_name}-private-routetable-${each.value.tags["AZ"]}" 
                             "AZ" = "${each.value.tags["AZ"]}" 
-                         }
+                          }
 }
 
 
@@ -104,7 +104,7 @@ resource "aws_route_table_association" "public_rta" {
  # # Possibilidade de iterar diretamente sem o locals, porém menos elegante
 
 resource "aws_route_table_association" "private_rta" {
-   for_each         = local.rt_subnet_az
+   for_each          = local.rt_subnet_az
       subnet_id      = each.value.subnet
       route_table_id = each.value.rt
 }
